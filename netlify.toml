@@ -1,0 +1,9 @@
+ [build]
+  publish = "."
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "ALLOWALL"
+    Content-Security-Policy = "frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"
+    X-Content-Type-Options = "nosniff"
