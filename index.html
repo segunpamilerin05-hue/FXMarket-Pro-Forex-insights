@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FXMarket Pro</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Blocker for non-Telegram access -->
+    <div id="not-telegram" class="not-telegram">
+        <div class="blocker-content">
+            <h1>🚫 Access Denied</h1>
+            <p>This app can only be opened inside Telegram.</p>
+            <a href="https://t.me/YourBotUsername" class="tg-button">Open in Telegram</a>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" class="app hidden">
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">📈</span>
+                <span class="logo-text">FXMarket Pro</span>
+            </div>
+            <div class="user-info" id="userInfo"></div>
+        </header>
+
+        <nav class="nav-tabs">
+            <button class="tab active" data-tab="rates">💱 Rates</button>
+            <button class="tab" data-tab="insights">📊 Insights</button>
+            <button class="tab" data-tab="alerts">🔔 Alerts</button>
+            <button class="tab" data-tab="tools">🧮 Tools</button>
+            <button class="tab" data-tab="learn">📚 Learn</button>
+        </nav>
+
+        <main class="content">
+            <!-- Currency Rates Tab -->
+            <section id="rates" class="tab-content active">
+                <h2>Live Currency Rates</h2>
+                <div class="rates-grid" id="ratesGrid">
+                    <div class="loading">Loading rates...</div>
+                </div>
+                <button class="refresh-btn" onclick="loadRates()">🔄 Refresh Rates</button>
+            </section>
+
+            <!-- Market Insights Tab -->
+            <section id="insights" class="tab-content">
+                <h2>Market Analysis</h2>
+                <div class="insights-list">
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <span class="pair">EUR/USD</span>
+                            <span class="signal buy">BUY</span>
+                        </div>
+                        <p>Bullish momentum detected. RSI at 45, MACD crossing upward. Target: 1.0950</p>
+                        <span class="time">2 hours ago</span>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <span class="pair">GBP/JPY</span>
+                            <span class="signal sell">SELL</span>
+                        </div>
+                        <p>Bearish divergence on 4H chart. Resistance at 188.50 holding strong.</p>
+                        <span class="time">4 hours ago</span>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <span class="pair">XAU/USD</span>
+                            <span class="signal neutral">NEUTRAL</span>
+                        </div>
+                        <p>Consolidation phase. Await breakout above $2,050 or below $2,020.</p>
+                        <span class="time">6 hours ago</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Price Alerts Tab -->
+            <section id="alerts" class="tab-content">
+                <h2>Price Alerts</h2>
+                <div class="alert-form">
+                    <select id="alertPair">
+                        <option value="EURUSD">EUR/USD</option>
+                        <option value="GBPUSD">GBP/USD</option>
+                        <option value="USDJPY">USD/JPY</option>
+                        <option value="XAUUSD">XAU/USD (Gold)</option>
+                        <option value="BTCUSD">BTC/USD</option>
+                    </select>
+                    <select id="alertCondition">
+                        <option value="above">Price goes above</option>
+                        <option value="below">Price goes below</option>
+                    </select>
+                    <input type="number" id="alertPrice" placeholder="Target price" step="0.0001">
+                    <button class="primary-btn" onclick="createAlert()">Create Alert</button>
+                </div>
+                <div class="alerts-list" id="alertsList">
+                    <p class="empty-msg">No alerts yet. Create your first alert!</p>
+                </div>
+            </section>
+
+            <!-- Trading Tools Tab -->
+            <section id="tools" class="tab-content">
+                <h2>Trading Tools</h2>
+                
+                <div class="tool-card">
+                    <h3>💰 Position Size Calculator</h3>
+                    <input type="number" id="accountBalance" placeholder="Account Balance ($)" step="0.01">
+                    <input type="number" id="riskPercent" placeholder="Risk %" value="1" step="0.1">
+                    <input type="number" id="stopLoss" placeholder="Stop Loss (pips)" step="0.1">
+                    <button class="primary-btn" onclick="calculatePosition()">Calculate</button>
+                    <div id="positionResult" class="result"></div>
+                </div>
+
+                <div class="tool-card">
+                    <h3>📊 Pip Value Calculator</h3>
+                    <select id="pipPair">
+                        <option value="EURUSD">EUR/USD</option>
+                        <option value="GBPUSD">GBP/USD</option>
+                        <option value="USDJPY">USD/JPY</option>
+                    </select>
+                    <input type="number" id="lotSize" placeholder="Lot Size" value="1" step="0.01">
+                    <button class="primary-btn" onclick="calculatePip()">Calculate</button>
+                    <div id="pipResult" class="result"></div>
+                </div>
+
+                <div class="tool-card">
+                    <h3>💹 Profit/Loss Calculator</h3>
+                    <input type="number" id="entryPrice" placeholder="Entry Price" step="0.0001">
+                    <input type="number" id="exitPrice" placeholder="Exit Price" step="0.0001">
+                    <input type="number" id="plLots" placeholder="Lot Size" value="1" step="0.01">
+                    <select id="plDirection">
+                        <option value="long">Long (Buy)</option>
+                        <option value="short">Short (Sell)</option>
+                    </select>
+                    <button class="primary-btn" onclick="calculatePL()">Calculate P/L</button>
+                    <div id="plResult" class="result"></div>
+                </div>
+            </section>
+
+            <!-- Educational Resources Tab -->
+            <section id="learn" class="tab-content">
+                <h2>Learn Forex</h2>
+                <div class="learn-list">
+                    <div class="learn-card">
+                        <h3>📖 What is Forex?</h3>
+                        <p>Foreign exchange (Forex) is the global marketplace for exchanging national currencies. It's the largest financial market with $7.5 trillion daily volume.</p>
+                        <button class="read-more" onclick="toggleLearn(this)">Read more →</button>
+                        <div class="learn-more-content">
+                            <p>The Forex market operates 24 hours a day, 5 days a week across major financial centers: Sydney, Tokyo, London, and New York. Currencies are always traded in pairs, and profits are made from exchange rate fluctuations.</p>
+                        </div>
+                    </div>
+
+                    <div class="learn-card">
+                        <h3>📈 Technical Analysis Basics</h3>
+                        <p>Technical analysis involves studying price charts and patterns to predict future movements.</p>
+                        <button class="read-more" onclick="toggleLearn(this)">Read more →</button>
+                        <div class="learn-more-content">
+                            <p><strong>Key concepts:</strong><br>
+                            • Support & Resistance<br>
+                            • Trend Lines<br>
+                            • Moving Averages (SMA, EMA)<br>
+                            • RSI (Relative Strength Index)<br>
+                            • MACD (Moving Average Convergence Divergence)<br>
+                            • Candlestick Patterns</p>
+                        </div>
+                    </div>
+
+                    <div class="learn-card">
+                        <h3>🛡️ Risk Management</h3>
+                        <p>Never risk more than 1-2% of your account on a single trade. Use stop-loss orders always.</p>
+                        <button class="read-more" onclick="toggleLearn(this)">Read more →</button>
+                        <div class="learn-more-content">
+                            <p><strong>Golden rules:</strong><br>
+                            • Risk/Reward ratio should be at least 1:2<br>
+                            • Keep a trading journal<br>
+                            • Don't revenge trade after losses<br>
+                            • Diversify across currency pairs<br>
+                            • Set daily loss limits</p>
+                        </div>
+                    </div>
+
+                    <div class="learn-card">
+                        <h3>💡 Fundamental Analysis</h3>
+                        <p>Understanding economic indicators that move currencies: interest rates, GDP, inflation, employment data.</p>
+                        <button class="read-more" onclick="toggleLearn(this)">Read more →</button>
+                        <div class="learn-more-content">
+                            <p><strong>Key indicators to watch:</strong><br>
+                            • Central Bank interest rate decisions<br>
+                            • Non-Farm Payrolls (NFP)<br>
+                            • Consumer Price Index (CPI)<br>
+                            • GDP growth rates<br>
+                            • Political events and elections</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>© 2025 FXMarket Pro | Telegram Mini App</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
